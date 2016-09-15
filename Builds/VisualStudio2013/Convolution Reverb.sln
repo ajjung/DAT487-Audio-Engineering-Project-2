@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2013
+Project("{BA7202D5-8F8C-A14A-D3A1-5F9945F1DADA}") = "Convolution Reverb", "Convolution Reverb.vcxproj", "{3BD6E0F2-BE72-8E67-BFDA-DC99A808C410}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BD6E0F2-BE72-8E67-BFDA-DC99A808C410}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3BD6E0F2-BE72-8E67-BFDA-DC99A808C410}.Debug|Win32.Build.0 = Debug|Win32
+		{3BD6E0F2-BE72-8E67-BFDA-DC99A808C410}.Release|Win32.ActiveCfg = Release|Win32
+		{3BD6E0F2-BE72-8E67-BFDA-DC99A808C410}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
