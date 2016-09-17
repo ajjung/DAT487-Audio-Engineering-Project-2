@@ -119,7 +119,7 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 
 		// ComboBox Option 1
 	case ComboBoxParam: m_Combo = newValue;
-		File.Default();
+		File.Default(fileBuffer);
 
 	default: break;
 	}

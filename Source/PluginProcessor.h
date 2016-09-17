@@ -103,6 +103,7 @@ private:
 	PreDelay PDelayR;
 
 	Impulse File;
+	AudioSampleBuffer fileBuffer;
 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)

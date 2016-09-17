@@ -7,10 +7,12 @@ class Impulse
 public:
 	Impulse();
 	~Impulse();
-	void Default();
+	void Default(AudioSampleBuffer& buffer);
 
 private:
 	AudioFormatManager formatManager;
+	ScopedPointer<AudioFormatReaderSource> readerSource;
+	int position;
 };
 
 
