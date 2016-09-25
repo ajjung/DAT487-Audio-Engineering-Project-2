@@ -102,6 +102,7 @@ private:
 	PreDelay PDelayL;
 	PreDelay PDelayR;
 
+	FFTConvolver Convolve;
 	Impulse File;
 	AudioSampleBuffer fileBuffer;
 

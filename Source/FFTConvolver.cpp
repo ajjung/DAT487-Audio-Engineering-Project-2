@@ -40,11 +40,3 @@ void FFTConvolver::prepareToPlay()
 {
 
 }
-
-float FFTConvolver::process(float audioInput)
-{
-	float input = audioInput;
-	float yn = m_pBuffer[m_nReadIndex];
-
-	return ((m_fWetLevel * yn) + ((1.0 - m_fWetLevel) * input));
-}

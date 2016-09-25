@@ -259,15 +259,25 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 	for (int channel = 0; channel < getNumInputChannels(); ++channel)
 	{
 		float* channelData = buffer.getWritePointer(channel);
+		float* ImpulseData = fileBuffer.getWritePointer(channel);
+
 		for (int i = 0; i < buffer.getNumSamples(); i++)
 		{
 			if (channel == 0)
 			{
 				channelData[i] = PDelayL.process(channelData[i]);
+				Convolve.FFT_forward(channelData);
+				Convolve.FFT_forward(ImpulseData);
+				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
+				Convolve.IFFT_backward(channelData);
 			}
 			else if (channel == 1)
 			{
 				channelData[i] = PDelayR.process(channelData[i]);
+				Convolve.FFT_forward(channelData);
+				Convolve.FFT_forward(ImpulseData);
+				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
+				Convolve.IFFT_backward(channelData);
 			}
 		}
 	}

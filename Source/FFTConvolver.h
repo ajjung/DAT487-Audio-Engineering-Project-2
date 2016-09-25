@@ -12,7 +12,6 @@ public:
 	void FFTMultiply();
 	void IFFT_backward(float *input);
 	void prepareToPlay();
-	float process(float input);
 
 private:
 	float m_fWetLevel;
