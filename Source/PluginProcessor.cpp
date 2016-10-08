@@ -23,6 +23,8 @@ m_knob4(0),
 m_knob5(0),
 m_Combo(0)
 {
+	fft = NULL;
+
 	m_fFeedback = 0;
 	m_fWetLevel = 0;
 	m_fGain = 0;
@@ -52,6 +54,7 @@ m_Combo(0)
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
+	deleteAndZero(fft);
 }
 
 
@@ -108,14 +111,14 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 
 		//Reverb Time Knob
 	case knob4Param: m_knob4 = newValue;
-		m_fReverbTime = m_knob4;
+		m_fReverbTime = m_knob4; break;
 
 		//Mix Knob
 	case knob5Param: m_knob5 = newValue;
 		m_fWetLevel = m_knob5;
 
 		PDelayL.setWetMix(m_fWetLevel);
-		PDelayR.setWetMix(m_fWetLevel); break;
+		PDelayR.setWetMix(m_fWetLevel);break;
 
 		// ComboBox Option 1
 	case ComboBoxParam: m_Combo = newValue;
@@ -241,48 +244,67 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayR.prepareToPlay();
 	PDelayR.setPlayheads();
 
-	//m_fDelayTimeZ = m_fDelayTime;
-
+	// Plan initialisation
+	if (fft == NULL){
+		fft = new FFTConvolver (nfft);
+	}
+	ifftSamples = new float[nfft];
+	fftData = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft); // will be used to store the unfiltered FFT of the incoming signal
+	fftDataFilt = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft); // used to store the filtered FFT
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
 {
 	// When playback stops, you can use this as an opportunity to free up any
 	// spare memory, etc.
+	fftw_free(fftData);
+	fftw_free(fftDataFilt);
+	fftw_free(fftH0);
+	delete[] filterSamples;
 }
 
 void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-
 	// This is the place where you'd normally do the guts of your plugin's
 	// audio processing...
 	for (int channel = 0; channel < getNumInputChannels(); ++channel)
 	{
 		float* channelData = buffer.getWritePointer(channel);
 		float* ImpulseData = fileBuffer.getWritePointer(channel);
+		int N = getNumOutputChannels();
+		int bufsize = buffer.getNumSamples();
 
 		for (int i = 0; i < buffer.getNumSamples(); i++)
 		{
 			if (channel == 0)
 			{
 				channelData[i] = PDelayL.process(channelData[i]);
-				Convolve.FFT_forward(channelData);
-				Convolve.FFT_forward(ImpulseData);
-				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
-				Convolve.IFFT_backward(channelData);
+				fft->processForward(channelData, fftData, bufsize, nfft);
+				fft->processForward(ImpulseData, fftData, bufsize, nfft);
+				for (int i = 0; i < nfft; i++)
+				{
+					fftDataFilt[i][0] = fftData[i][0] * fftH0[i][0] - fftData[i][1] * fftH0[i][1];
+					fftDataFilt[i][1] = fftData[i][0] * fftH0[i][1] + fftData[i][1] * fftH0[i][0];
+					fft->processBackward(fftDataFilt, ifftSamples, nfft);
+				}
+
 			}
 			else if (channel == 1)
 			{
 				channelData[i] = PDelayR.process(channelData[i]);
-				Convolve.FFT_forward(channelData);
-				Convolve.FFT_forward(ImpulseData);
-				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
-				Convolve.IFFT_backward(channelData);
+				fft->processForward(channelData, fftData, bufsize, nfft);
+				fft->processForward(ImpulseData, fftData, bufsize, nfft);
+				for (int i = 0; i < nfft; i++)
+				{
+					fftDataFilt[i][0] = fftData[i][0] * fftH0[i][0] - fftData[i][1] * fftH0[i][1];
+					fftDataFilt[i][1] = fftData[i][0] * fftH0[i][1] + fftData[i][1] * fftH0[i][0];
+					fft->processBackward(fftDataFilt, ifftSamples, nfft);
+				}
+
 			}
 		}
+		// update parameters
 	}
-
-
 
 	// In case we have more outputs than inputs, this code clears any output
 	// channels that didn't contain input data, (because these aren't

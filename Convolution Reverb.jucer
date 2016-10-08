@@ -9,7 +9,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="ConvolutionReverbAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.ConvolutionReverb"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.2.3">
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.2.4">
   <MAINGROUP id="Naoya0" name="Convolution Reverb">
     <GROUP id="{FA370DC6-F2BE-09D1-7C22-693FFDC5C461}" name="Source">
       <FILE id="RXd1QP" name="FFTConvolver.cpp" compile="1" resource="0"

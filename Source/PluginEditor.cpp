@@ -81,7 +81,8 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	comboBox->setJustificationType(Justification::centredLeft);
 	comboBox->setTextWhenNothingSelected(String());
 	comboBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-	comboBox->addItem("Default", 1);
+	comboBox->addItem("Default", 0);
+	comboBox->setSelectedItemIndex(0);
 	comboBox->addListener(this);
 	comboBox->setBounds(180, 20, 120, 20);
 

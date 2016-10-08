@@ -102,10 +102,13 @@ private:
 	PreDelay PDelayL;
 	PreDelay PDelayR;
 
-	FFTConvolver Convolve;
+	FFTConvolver *fft;
 	Impulse File;
 	AudioSampleBuffer fileBuffer;
 
+	int nfft;
+	float *filterSamples, *ifftSamples;
+	fftw_complex *fftData, *fftDataFilt, *fftH0;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)
 };
