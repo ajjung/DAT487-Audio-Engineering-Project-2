@@ -1,28 +1,27 @@
 #ifndef FFTCONVOLVER_H_INCLUDED
 #define FFTCONVOLVER_H_INCLUDED
+
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "FFTW3/fftw3.h"
+
+#ifndef M_PI
+#define M_PI           3.14159265358979323846
+#endif
 
 class FFTConvolver
 {
 public:
-	FFTConvolver();
+	FFTConvolver(int fftSize);
 	~FFTConvolver();
-	void setWetMix(float wetMix);
-	void FFT_forward(float *input);
-	void FFTMultiply();
-	void IFFT_backward(float *input);
-	void prepareToPlay();
+	void processForward(float* channelData, fftw_complex* fftData, int dataSize, int fftSize);
+	void processBackward(fftw_complex* fftData, float* channelData, int fftSize);
+
+	fftw_complex* mult(fftw_complex* X, fftw_complex* Y, int fftSize);
 
 private:
-	float m_fWetLevel;
-	float m_fSampleRate;
-	float* m_pBuffer;
-	int m_nReadIndex;
-	int m_nBufferSize;
-
-	FFT Convolve;
+	fftw_complex    *data, *fft_result, *ifft_result;
+	fftw_plan       plan_forward, plan_backward;
+	int             i;
 };
-
-
 
 #endif 

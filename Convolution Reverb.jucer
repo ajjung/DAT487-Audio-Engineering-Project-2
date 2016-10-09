@@ -9,7 +9,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="ConvolutionReverbAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.ConvolutionReverb"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.2.3">
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.2.4">
   <MAINGROUP id="Naoya0" name="Convolution Reverb">
     <GROUP id="{FA370DC6-F2BE-09D1-7C22-693FFDC5C461}" name="Source">
       <FILE id="RXd1QP" name="FFTConvolver.cpp" compile="1" resource="0"
@@ -29,12 +29,19 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <VS2013 targetFolder="Builds/VisualStudio2013">
+    <VS2013 targetFolder="Builds/VisualStudio2013" vst3Folder="" externalLibraries="libfftw3-3.lib"
+            extraDefs="" extraLinkerFlags="-lfftw">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="Convolution Reverb"/>
+                       isDebug="1" optimisation="1" targetName="Convolution Reverb"
+                       headerPath="C:\Users\Anthony\Documents\GitHub\DAT487-Audio-Engineering-Project-2\Libraries"
+                       libraryPath="C:\Users\Anthony\Documents\GitHub\DAT487-Audio-Engineering-Project-2\Libraries\FFTW3\"
+                       defines="" enableIncrementalLinking="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="Convolution Reverb"/>
+                       isDebug="0" optimisation="3" targetName="Convolution Reverb"
+                       libraryPath="C:\Users\Anthony\Documents\GitHub\DAT487-Audio-Engineering-Project-2\Libraries\FFTW3\"
+                       headerPath="C:\Users\Anthony\Documents\GitHub\DAT487-Audio-Engineering-Project-2\Libraries"
+                       defines=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
@@ -53,6 +60,28 @@
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
+    <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Convolution Reverb"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Convolution Reverb"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
@@ -71,4 +100,7 @@
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

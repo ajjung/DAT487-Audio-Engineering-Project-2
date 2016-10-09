@@ -97,12 +97,10 @@ private:
 	float m_fWetLevel;
 
 	//for our interpolated delay time
-	int m_fDelayTimeZ;
-
 	PreDelay PDelayL;
 	PreDelay PDelayR;
 
-	FFTConvolver Convolve;
+	FFTConvolver *fft;
 	Impulse File;
 	AudioSampleBuffer fileBuffer;
 

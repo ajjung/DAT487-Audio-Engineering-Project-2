@@ -14,7 +14,6 @@ It contains the basic framework code for a JUCE plugin processor.
 #include "FFTConvolver.h"
 #include <string.h>
 
-
 //==============================================================================
 ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor() : m_knob1(0),
 m_knob2(0),
@@ -52,6 +51,7 @@ m_Combo(0)
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
+	deleteAndZero(fft);
 }
 
 
@@ -108,14 +108,14 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 
 		//Reverb Time Knob
 	case knob4Param: m_knob4 = newValue;
-		m_fReverbTime = m_knob4;
+		m_fReverbTime = m_knob4; break;
 
 		//Mix Knob
 	case knob5Param: m_knob5 = newValue;
 		m_fWetLevel = m_knob5;
 
 		PDelayL.setWetMix(m_fWetLevel);
-		PDelayR.setWetMix(m_fWetLevel); break;
+		PDelayR.setWetMix(m_fWetLevel);break;
 
 		// ComboBox Option 1
 	case ComboBoxParam: m_Combo = newValue;
@@ -240,9 +240,6 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayR.setFeedback(m_fFeedback);
 	PDelayR.prepareToPlay();
 	PDelayR.setPlayheads();
-
-	//m_fDelayTimeZ = m_fDelayTime;
-
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -253,7 +250,6 @@ void ConvolutionReverbAudioProcessor::releaseResources()
 
 void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-
 	// This is the place where you'd normally do the guts of your plugin's
 	// audio processing...
 	for (int channel = 0; channel < getNumInputChannels(); ++channel)
@@ -266,23 +262,14 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 			if (channel == 0)
 			{
 				channelData[i] = PDelayL.process(channelData[i]);
-				Convolve.FFT_forward(channelData);
-				Convolve.FFT_forward(ImpulseData);
-				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
-				Convolve.IFFT_backward(channelData);
 			}
 			else if (channel == 1)
 			{
 				channelData[i] = PDelayR.process(channelData[i]);
-				Convolve.FFT_forward(channelData);
-				Convolve.FFT_forward(ImpulseData);
-				channelData[i] = (channelData[i] * ImpulseData[i]) - (channelData[i + 1] - ImpulseData[i + 1]);
-				Convolve.IFFT_backward(channelData);
 			}
 		}
+		// update parameters
 	}
-
-
 
 	// In case we have more outputs than inputs, this code clears any output
 	// channels that didn't contain input data, (because these aren't
