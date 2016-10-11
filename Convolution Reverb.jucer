@@ -11,9 +11,13 @@
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.ConvolutionReverb"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.2.4">
   <MAINGROUP id="Naoya0" name="Convolution Reverb">
+    <GROUP id="{C6D8BF93-DEFE-152E-D524-67A67D50097C}" name="Libraries">
+      <GROUP id="{8F733DE9-B470-C0AC-67E4-02B038BD12CC}" name="FFTW3">
+        <FILE id="Lw13Jh" name="fftw3.h" compile="0" resource="0" file="Libraries/FFTW3/fftw3.h"/>
+        <FILE id="M2dqWk" name="libfftw3-3.lib" compile="0" resource="1" file="Libraries/FFTW3/libfftw3-3.lib"/>
+      </GROUP>
+    </GROUP>
     <GROUP id="{FA370DC6-F2BE-09D1-7C22-693FFDC5C461}" name="Source">
-      <FILE id="RXd1QP" name="FFTConvolver.cpp" compile="1" resource="0"
-            file="Source/FFTConvolver.cpp"/>
       <FILE id="BYBRoT" name="FFTConvolver.h" compile="0" resource="0" file="Source/FFTConvolver.h"/>
       <FILE id="czS2Qu" name="Impulse.cpp" compile="1" resource="0" file="Source/Impulse.cpp"/>
       <FILE id="tuVyZV" name="Impulse.h" compile="0" resource="0" file="Source/Impulse.h"/>
@@ -29,8 +33,8 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <VS2013 targetFolder="Builds/VisualStudio2013" vst3Folder="" externalLibraries="libfftw3-3.lib"
-            extraDefs="" extraLinkerFlags="-lfftw">
+    <VS2013 targetFolder="Builds/VisualStudio2013" vst3Folder="" externalLibraries=""
+            extraDefs="" extraLinkerFlags="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="Convolution Reverb"

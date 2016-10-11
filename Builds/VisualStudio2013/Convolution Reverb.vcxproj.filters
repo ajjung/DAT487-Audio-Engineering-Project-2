@@ -5,6 +5,12 @@
     <Filter Include="Convolution Reverb">
       <UniqueIdentifier>{68CDF623-318A-6D87-F241-1D8C9F5EAC61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Convolution Reverb\Libraries">
+      <UniqueIdentifier>{BBABE1E6-6E68-02D2-E040-5F940D24D654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Convolution Reverb\Libraries\FFTW3">
+      <UniqueIdentifier>{CBBD065D-63AE-2049-A811-543CF49CC649}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Convolution Reverb\Source">
       <UniqueIdentifier>{7A736892-FE00-2112-512A-DE4C4DFEF875}</UniqueIdentifier>
     </Filter>
@@ -382,9 +388,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\FFTConvolver.cpp">
-      <Filter>Convolution Reverb\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Impulse.cpp">
       <Filter>Convolution Reverb\Source</Filter>
     </ClCompile>
@@ -2185,6 +2188,9 @@
     <ClCompile Include="..\..\..\..\..\..\..\Program Files (x86)\JUCE\modules\juce_video\juce_video.mm">
       <Filter>Juce Modules\juce_video</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\juce_audio_basics.cpp">
       <Filter>Juce Library Code</Filter>
     </ClCompile>
@@ -2235,6 +2241,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Libraries\FFTW3\fftw3.h">
+      <Filter>Convolution Reverb\Libraries\FFTW3</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\FFTConvolver.h">
       <Filter>Convolution Reverb\Source</Filter>
     </ClInclude>
@@ -4188,11 +4197,17 @@
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
       <Filter>Juce Library Code</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>Juce Library Code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Libraries\FFTW3\libfftw3-3.lib">
+      <Filter>Convolution Reverb\Libraries\FFTW3</Filter>
+    </None>
     <None Include="..\..\..\..\..\..\..\Program Files (x86)\JUCE\modules\juce_audio_formats\codecs\flac\Flac Licence.txt">
       <Filter>Juce Modules\juce_audio_formats\codecs\flac</Filter>
     </None>

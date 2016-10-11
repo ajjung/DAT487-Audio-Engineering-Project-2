@@ -1,13 +1,5 @@
 #include "Impulse.h"
 
-Impulse::Impulse()
-{
-}
-
-Impulse::~Impulse()
-{
-}
-
 void Impulse::Default(AudioSampleBuffer& buffer)
 {
 	File file("C:/Users/Anthony/Downloads/Impulse.wav");

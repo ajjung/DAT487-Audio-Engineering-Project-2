@@ -5,8 +5,6 @@
 class Impulse
 {
 public:
-	Impulse();
-	~Impulse();
 	void Default(AudioSampleBuffer& buffer);
 
 private:
