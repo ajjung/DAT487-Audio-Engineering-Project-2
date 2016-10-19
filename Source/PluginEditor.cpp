@@ -23,7 +23,7 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	addAndMakeVisible(knob3 = new Slider("Knob - 3"));
 	addAndMakeVisible(knob4 = new Slider("Knob - 4"));
 	addAndMakeVisible(knob5 = new Slider("Knob - 5"));
-	addAndMakeVisible(comboBox = new ComboBox("new combo box"));
+	addAndMakeVisible(button1 = new TextButton("new button"));
 	
 	//knob1 // Gain 
 	knob1->setRange(0.0, 100.0);
@@ -76,15 +76,10 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	knob5->addListener(this);
 	knob5->setBounds(370, 90, 90, 90);
 
-	//comboBox // Impulse Response menu
-	comboBox->setEditableText(false);
-	comboBox->setJustificationType(Justification::centredLeft);
-	comboBox->setTextWhenNothingSelected(String());
-	comboBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-	comboBox->addItem("Default", 0);
-	comboBox->setSelectedItemIndex(0);
-	comboBox->addListener(this);
-	comboBox->setBounds(180, 20, 120, 20);
+	//button // Impulse Response menu
+    button1->setButtonText("Open Impulse Response");
+    button1->addListener(this);
+	button1->setBounds(180, 20, 120, 20);
 
 
 	startTimer(50);
@@ -97,7 +92,7 @@ ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
 	knob3 = nullptr;
 	knob4 = nullptr;
 	knob5 = nullptr;
-	comboBox = nullptr;
+	button1 = nullptr;
 }
 
 //==============================================================================
@@ -147,9 +142,7 @@ void ConvolutionReverbAudioProcessorEditor::sliderValueChanged(Slider* sliderTha
 	}
 }
 
-void ConvolutionReverbAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+void ConvolutionReverbAudioProcessorEditor::buttonClicked(Button* button)
 {
-	if (comboBoxThatHasChanged == comboBox)
-	{
-	}
+    processor.buttonClicked();
 }

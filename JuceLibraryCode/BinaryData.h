@@ -9,8 +9,8 @@
 
 namespace BinaryData
 {
-    extern const char*   libfftw33_lib;
-    const int            libfftw33_libSize = 241990;
+    extern const char*   libfftw3_a;
+    const int            libfftw3_aSize = 4890152;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

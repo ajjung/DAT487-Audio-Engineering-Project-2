@@ -20,7 +20,7 @@ It contains the basic framework code for a JUCE plugin editor.
 */
 class ConvolutionReverbAudioProcessorEditor : public AudioProcessorEditor,
 	Slider::Listener,
-	ComboBox::Listener,
+	Button::Listener,
 	Timer
 {
 public:
@@ -32,19 +32,20 @@ public:
 
 	void timerCallback()override;
 	void sliderValueChanged(Slider* sliderThatWasChanged) override;
-	void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked(Button* button) override;
 
 private:
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	ConvolutionReverbAudioProcessor& processor;
-
 	ScopedPointer<Slider> knob1;
 	ScopedPointer<Slider> knob2;
 	ScopedPointer<Slider> knob3;
 	ScopedPointer<Slider> knob4;
 	ScopedPointer<Slider> knob5;
-	ScopedPointer<ComboBox> comboBox;
+    ScopedPointer<TextButton> button1;
+    
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessorEditor)
 };
 

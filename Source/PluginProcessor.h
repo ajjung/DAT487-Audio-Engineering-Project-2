@@ -14,7 +14,6 @@ It contains the basic framework code for a JUCE plugin processor.
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PreDelay.h"
 #include "FFTConvolver.h"
-#include "Impulse.h"
 
 
 //==============================================================================
@@ -67,17 +66,17 @@ public:
 	//==============================================================================
 	void getStateInformation(MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
-
+    void buttonClicked();
+    
 	enum Parameters{
 		knob1Param,
 		knob2Param,
 		knob3Param,
 		knob4Param,
 		knob5Param,
-		ComboBoxParam,
 		totalNumParams
 	};
-
+    
 private:
 
 	// raw Vars
@@ -96,14 +95,18 @@ private:
 	float m_fReverbTime;
 	float m_fWetLevel;
 
+    AudioFormatManager formatManager;
+    int position;
+    AudioSampleBuffer fileBuffer;
+    
 	//for our interpolated delay time
 	PreDelay PDelayL;
 	PreDelay PDelayR;
 
 	FFTConvolver *fft;
-	Impulse File;
-	AudioSampleBuffer fileBuffer;
 
+    int nfft;
+    fftw_complex *audioData, *impulseData, *result;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)
 };

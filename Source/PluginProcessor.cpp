@@ -10,8 +10,6 @@ It contains the basic framework code for a JUCE plugin processor.
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "PreDelay.h"
-#include "FFTConvolver.h"
 #include <string.h>
 
 //==============================================================================
@@ -22,6 +20,8 @@ m_knob4(0),
 m_knob5(0),
 m_Combo(0)
 {
+    fft = NULL;
+    
 	m_fFeedback = 0;
 	m_fWetLevel = 0;
 	m_fGain = 0;
@@ -74,7 +74,6 @@ float ConvolutionReverbAudioProcessor::getParameter(int index)
 	case knob3Param: return m_knob3;
 	case knob4Param: return m_knob4;
 	case knob5Param: return m_knob5;
-	case ComboBoxParam: return m_Combo;
 	default: return 0.0;
 	}
 }
@@ -117,10 +116,6 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 		PDelayL.setWetMix(m_fWetLevel);
 		PDelayR.setWetMix(m_fWetLevel);break;
 
-		// ComboBox Option 1
-	case ComboBoxParam: m_Combo = newValue;
-		File.Default(fileBuffer);
-
 	default: break;
 	}
 }
@@ -133,7 +128,6 @@ const String ConvolutionReverbAudioProcessor::getParameterName(int index)
 	case knob3Param: return "Feedback";
 	case knob4Param: return "Reverb Time";
 	case knob5Param: return "Wet / Dry Mix";
-	case ComboBoxParam: return "Impulse Response";
 	default: return String::empty;
 	}
 }
@@ -215,6 +209,39 @@ void ConvolutionReverbAudioProcessor::changeProgramName(int index, const String&
 {
 }
 
+void ConvolutionReverbAudioProcessor::buttonClicked()
+{
+    FileChooser chooser ("Select a Wave file shorter than 2 seconds to play...",
+                         File::nonexistent,
+                         "*.wav");
+    
+    if (chooser.browseForFileToOpen())
+    {
+        const File file (chooser.getResult());
+        ScopedPointer<AudioFormatReader> reader (formatManager.createReaderFor (file));
+        
+        if (reader != nullptr)
+        {
+            const double duration = reader->lengthInSamples / reader->sampleRate;
+            
+            if (duration < 3)
+            {
+                fileBuffer.setSize (reader->numChannels, reader->lengthInSamples);
+                reader->read (&fileBuffer,
+                              0,
+                              reader->lengthInSamples,
+                              0,
+                              true,
+                              true);
+                position = 0;
+            }
+            else
+            {
+                // handle the error that the file is 2 seconds or longer..
+            }
+        }
+    }
+}
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
@@ -240,6 +267,18 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayR.setFeedback(m_fFeedback);
 	PDelayR.prepareToPlay();
 	PDelayR.setPlayheads();
+    
+    nfft = samplesPerBlock;
+    
+    if (fft == NULL)
+    {
+        fft = new FFTConvolver(nfft);
+    }
+    
+    audioData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+    impulseData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+    result = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -256,6 +295,7 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 	{
 		float* channelData = buffer.getWritePointer(channel);
 		float* ImpulseData = fileBuffer.getWritePointer(channel);
+        int bufsize = buffer.getNumSamples() ;
 
 		for (int i = 0; i < buffer.getNumSamples(); i++)
 		{
@@ -268,7 +308,14 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 				channelData[i] = PDelayR.process(channelData[i]);
 			}
 		}
-		// update parameters
+        /*fft->processForward(channelData, audioData, nfft, bufsize);
+        fft->processForward(ImpulseData, impulseData, nfft, bufsize);
+        for (int i = 0; i < nfft; i++)
+        {
+            result[i][0] = audioData[i][0] * impulseData[i][0] - audioData[i][1] * impulseData[i][1];
+            result[i][1] = audioData[i][0] * impulseData[i][1] + audioData[i][1] * impulseData[i][0];
+        }
+        fft->processBackward(result, channelData, nfft);*/
 	}
 
 	// In case we have more outputs than inputs, this code clears any output

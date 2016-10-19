@@ -2,8 +2,8 @@
 
 <JUCERPROJECT id="hQUmAv" name="Convolution Reverb" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.ConvolutionReverb"
-              includeBinaryInAppConfig="1" buildVST="1" buildVST3="1" buildAU="0"
-              buildAUv3="0" buildRTAS="0" buildAAX="0" pluginName="Convolution Reverb"
+              includeBinaryInAppConfig="1" buildVST="1" buildVST3="1" buildAU="1"
+              buildAUv3="1" buildRTAS="0" buildAAX="0" pluginName="Convolution Reverb"
               pluginDesc="Convolution Reverb" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Hqum" pluginChannelConfigs=""
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
@@ -13,14 +13,14 @@
   <MAINGROUP id="Naoya0" name="Convolution Reverb">
     <GROUP id="{C6D8BF93-DEFE-152E-D524-67A67D50097C}" name="Libraries">
       <GROUP id="{8F733DE9-B470-C0AC-67E4-02B038BD12CC}" name="FFTW3">
+        <FILE id="xi2utv" name="libfftw3.a" compile="0" resource="1" file="Libraries/FFTW3/libfftw3.a"/>
         <FILE id="Lw13Jh" name="fftw3.h" compile="0" resource="0" file="Libraries/FFTW3/fftw3.h"/>
-        <FILE id="M2dqWk" name="libfftw3-3.lib" compile="0" resource="1" file="Libraries/FFTW3/libfftw3-3.lib"/>
       </GROUP>
     </GROUP>
     <GROUP id="{FA370DC6-F2BE-09D1-7C22-693FFDC5C461}" name="Source">
+      <FILE id="U8mLuB" name="FFTConvolver.cpp" compile="1" resource="0"
+            file="Source/FFTConvolver.cpp"/>
       <FILE id="BYBRoT" name="FFTConvolver.h" compile="0" resource="0" file="Source/FFTConvolver.h"/>
-      <FILE id="czS2Qu" name="Impulse.cpp" compile="1" resource="0" file="Source/Impulse.cpp"/>
-      <FILE id="tuVyZV" name="Impulse.h" compile="0" resource="0" file="Source/Impulse.h"/>
       <FILE id="qM9S3V" name="PreDelay.cpp" compile="1" resource="0" file="Source/PreDelay.cpp"/>
       <FILE id="LGaIMC" name="PreDelay.h" compile="0" resource="0" file="Source/PreDelay.h"/>
       <FILE id="NNa8er" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -62,28 +62,35 @@
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
         <MODULEPATH id="juce_audio_processors" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../Downloads/JUCE/modules"/>
       </MODULEPATHS>
     </VS2013>
-    <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="">
+    <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="" extraLinkerFlags="-lfftw3"
+               rtasFolder="" aaxFolder="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Convolution Reverb"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Convolution Reverb"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Convolution Reverb"
+                       libraryPath="/Users/ajung/Desktop/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
+                       headerPath="/Users/ajung/Desktop/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Convolution Reverb"
+                       headerPath="/Users/ajung/Desktop/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
+                       libraryPath="/Users/ajung/Desktop/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_extra" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_graphics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_events" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_data_structures" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_core" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_basics" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
+        <MODULEPATH id="juce_video" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../Downloads/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
@@ -93,6 +100,7 @@
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
