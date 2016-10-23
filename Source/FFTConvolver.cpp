@@ -21,6 +21,15 @@ FFTConvolver::FFTConvolver(int fftSize)
     
 }
 
+FFTConvolver::~FFTConvolver() 
+{
+	fftw_free(data);
+	fftw_free(fft_result);
+	fftw_free(ifft_result);
+	fftw_destroy_plan(plan_forward);	
+	fftw_destroy_plan(plan_backward);
+}
+
 void FFTConvolver::processForward(float* channelData, fftw_complex* fftData, int dataSize, int fftSize)
 {
     for (i = 0; i < fftSize; i++)

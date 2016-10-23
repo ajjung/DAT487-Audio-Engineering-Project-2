@@ -11,6 +11,7 @@ class FFTConvolver
 {
 public:
     FFTConvolver(int size);
+	~FFTConvolver();
     void processForward	   (float* channelData, fftw_complex* fftData, int dataSize, int fftSize);
     void processBackward   (fftw_complex* fftData, float* channelData, int fftSize);
     fftw_complex* mult  (fftw_complex* X, fftw_complex* Y, int fftSize);

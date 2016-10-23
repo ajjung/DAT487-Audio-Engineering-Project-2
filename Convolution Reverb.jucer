@@ -62,7 +62,7 @@
         <MODULEPATH id="juce_audio_formats" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
         <MODULEPATH id="juce_audio_processors" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../Downloads/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="..\..\..\..\..\Program Files (x86)\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
     <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="" extraLinkerFlags="-lfftw3"

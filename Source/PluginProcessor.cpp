@@ -237,7 +237,7 @@ void ConvolutionReverbAudioProcessor::buttonClicked()
             }
             else
             {
-                // handle the error that the file is 2 seconds or longer..
+                // handle the error that the file is 3 seconds or longer..
             }
         }
     }
@@ -285,6 +285,9 @@ void ConvolutionReverbAudioProcessor::releaseResources()
 {
 	// When playback stops, you can use this as an opportunity to free up any
 	// spare memory, etc.
+	fftw_free(audioData);
+	fftw_free(impulseData);
+	fftw_free(result);
 }
 
 void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -297,25 +300,26 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 		float* ImpulseData = fileBuffer.getWritePointer(channel);
         int bufsize = buffer.getNumSamples() ;
 
+        fft->processForward(channelData, audioData, nfft, bufsize);
+        fft->processForward(ImpulseData, impulseData, nfft, bufsize);
+
 		for (int i = 0; i < buffer.getNumSamples(); i++)
 		{
 			if (channel == 0)
 			{
-				channelData[i] = PDelayL.process(channelData[i]);
+				audioData[i][0] = PDelayL.process(audioData[i][0]);
 			}
 			else if (channel == 1)
 			{
-				channelData[i] = PDelayR.process(channelData[i]);
+				audioData[i][1] = PDelayR.process(audioData[i][1]);
 			}
 		}
-        /*fft->processForward(channelData, audioData, nfft, bufsize);
-        fft->processForward(ImpulseData, impulseData, nfft, bufsize);
         for (int i = 0; i < nfft; i++)
         {
             result[i][0] = audioData[i][0] * impulseData[i][0] - audioData[i][1] * impulseData[i][1];
             result[i][1] = audioData[i][0] * impulseData[i][1] + audioData[i][1] * impulseData[i][0];
         }
-        fft->processBackward(result, channelData, nfft);*/
+        fft->processBackward(result, channelData, nfft);
 	}
 
 	// In case we have more outputs than inputs, this code clears any output
