@@ -13,7 +13,6 @@ It contains the basic framework code for a JUCE plugin processor.
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PreDelay.h"
-#include "FFTConvolver.h"
 
 
 //==============================================================================
@@ -67,7 +66,9 @@ public:
 	void getStateInformation(MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
     void buttonClicked();
-    
+	void pushNextSampleIntoFifo(float sample);
+	void pushNextSampleIntoFifoFile(float sample);
+
 	enum Parameters{
 		knob1Param,
 		knob2Param,
@@ -103,10 +104,22 @@ private:
 	PreDelay PDelayL;
 	PreDelay PDelayR;
 
-	FFTConvolver *fft;
+	enum
+	{
+		fftOrder = 2,
+		fftSize = 1 << fftOrder
+	};
 
-    int nfft;
-    fftw_complex *audioData, *impulseData, *result;
+	FFT forwardFFT;
+	FFT inverseFFT;
+
+	float fifo[fftSize];
+	float fftData[2 * fftSize];
+	float filefftData[2 * fftSize];
+	float resultL[2 * fftSize];
+	float resultR[2 * fftSize];
+	int fifoIndex;
+	bool nextFFTBlockReady;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)
 };
