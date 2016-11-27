@@ -400,6 +400,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\FFTConvolver.cpp">
+      <Filter>Convolution Reverb\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PreDelay.cpp">
       <Filter>Convolution Reverb\Source</Filter>
     </ClCompile>
@@ -2297,6 +2300,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\Libraries\FFTW3\fftw3.h">
       <Filter>Convolution Reverb\Libraries\FFTW3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FFTConvolver.h">
+      <Filter>Convolution Reverb\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PreDelay.h">
       <Filter>Convolution Reverb\Source</Filter>

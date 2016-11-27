@@ -18,6 +18,9 @@
       </GROUP>
     </GROUP>
     <GROUP id="{FA370DC6-F2BE-09D1-7C22-693FFDC5C461}" name="Source">
+      <FILE id="U8mLuB" name="FFTConvolver.cpp" compile="1" resource="0"
+            file="Source/FFTConvolver.cpp"/>
+      <FILE id="BYBRoT" name="FFTConvolver.h" compile="0" resource="0" file="Source/FFTConvolver.h"/>
       <FILE id="qM9S3V" name="PreDelay.cpp" compile="1" resource="0" file="Source/PreDelay.cpp"/>
       <FILE id="LGaIMC" name="PreDelay.h" compile="0" resource="0" file="Source/PreDelay.h"/>
       <FILE id="NNa8er" name="PluginProcessor.cpp" compile="1" resource="0"

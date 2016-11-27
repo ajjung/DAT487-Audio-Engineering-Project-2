@@ -139,6 +139,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\FFTConvolver.cpp"/>
     <ClCompile Include="..\..\Source\PreDelay.cpp"/>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp"/>
     <ClCompile Include="..\..\Source\PluginEditor.cpp"/>
@@ -1845,6 +1846,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Libraries\FFTW3\fftw3.h"/>
+    <ClInclude Include="..\..\Source\FFTConvolver.h"/>
     <ClInclude Include="..\..\Source\PreDelay.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
     <ClInclude Include="..\..\Source\PluginEditor.h"/>

@@ -18,10 +18,10 @@ m_knob2(0),
 m_knob3(0),
 m_knob4(0),
 m_knob5(0),
-m_Combo(0),
-forwardFFT(fftOrder, false),
-inverseFFT(fftOrder, true)
-{    
+m_Combo(0)
+{
+    fft = NULL;
+    
 	m_fFeedback = 0;
 	m_fWetLevel = 0;
 	m_fGain = 0;
@@ -47,10 +47,13 @@ inverseFFT(fftOrder, true)
 	PDelayR.setGainLevel(m_fGain);
 	PDelayR.setFeedback(m_fFeedback);
 	PDelayR.setPlayheads();
+
+	formatManager.registerBasicFormats();
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
+	deleteAndZero(fft);
 }
 
 
@@ -234,50 +237,13 @@ void ConvolutionReverbAudioProcessor::buttonClicked()
                               true);
                 position = 0;
             }
+            else
+            {
+                // handle the error that the file is 3 seconds or longer..
+            }
         }
     }
 }
-
-void ConvolutionReverbAudioProcessor::pushNextSampleIntoFifo(float sample) noexcept
-{
-	// if the fifo contains enough data, set a flag to say
-	// that the next line should now be rendered..
-	if (fifoIndex == fftSize)
-	{
-		if (!nextFFTBlockReady)
-		{
-			zeromem(fftData, sizeof(fftData));
-			memcpy(fftData, fifo, sizeof(fifo));
-			nextFFTBlockReady = true;
-		}
-
-		fifoIndex = 0;
-	}
-
-	fifo[fifoIndex++] = sample;
-
-}
-
-void ConvolutionReverbAudioProcessor::pushNextSampleIntoFifoFile(float sample) noexcept
-{
-	// if the fifo contains enough data, set a flag to say
-	// that the next line should now be rendered..
-	if (fifoIndex == fftSize)
-	{
-		if (!nextFFTBlockReady)
-		{
-			zeromem(filefftData, sizeof(filefftData));
-			memcpy(filefftData, fifo, sizeof(fifo));
-			nextFFTBlockReady = true;
-		}
-
-		fifoIndex = 0;
-	}
-
-	fifo[fifoIndex++] = sample;
-
-}
-
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
@@ -303,12 +269,29 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayR.setFeedback(m_fFeedback);
 	PDelayR.prepareToPlay();
 	PDelayR.setPlayheads();
+    
+	formatManager.registerBasicFormats();
+
+    nfft = samplesPerBlock;
+    
+    if (fft == NULL)
+    {
+        fft = new FFTConvolver(nfft);
+    }
+    
+    audioData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+    impulseData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+    result = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
+
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
 {
 	// When playback stops, you can use this as an opportunity to free up any
 	// spare memory, etc.
+	fftw_free(audioData);
+	fftw_free(impulseData);
+	fftw_free(result);
 }
 
 void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -318,35 +301,33 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
 	for (int channel = 0; channel < getNumInputChannels(); ++channel)
 	{
 		float* channelData = buffer.getWritePointer(channel);
-		float* impulseData = fileBuffer.getWritePointer(channel);
+		float* ImpulseData = fileBuffer.getWritePointer(channel);
+        int bufsize = buffer.getNumSamples() ;
 
 		if (fileBuffer.getNumSamples() != 0)
 		{
+			fft->processForward(channelData, audioData, nfft, bufsize);
+			fft->processForward(ImpulseData, impulseData, nfft, bufsize);
+
 			for (int i = 0; i < buffer.getNumSamples(); i++)
 			{
 				if (channel == 0)
 				{
-					channelData[i] = PDelayL.process(channelData[i]);
-					pushNextSampleIntoFifo(channelData[i]);
-					pushNextSampleIntoFifoFile(impulseData[i]);
-					forwardFFT.performRealOnlyForwardTransform(fftData);
-					forwardFFT.performRealOnlyForwardTransform(filefftData);
-					resultL[i] = fftData[i] * filefftData[i];
-					inverseFFT.performRealOnlyInverseTransform(resultL);
-					channelData[i] += resultL[i];
+					audioData[i][0] = PDelayL.process(audioData[i][0]);
 				}
 				else if (channel == 1)
 				{
-					channelData[i] = PDelayR.process(channelData[i]);
-					pushNextSampleIntoFifo(channelData[i]);
-					pushNextSampleIntoFifoFile(impulseData[i]);
-					forwardFFT.performRealOnlyForwardTransform(fftData);
-					forwardFFT.performRealOnlyForwardTransform(filefftData);
-					resultR[i] = fftData[i] * filefftData[i];
-					inverseFFT.performRealOnlyInverseTransform(resultR);
-					channelData[i] += resultR[i];
+					audioData[i][1] = PDelayR.process(audioData[i][1]);
 				}
 			}
+
+			for (int i = 0; i < nfft; i++)
+			{
+				result[i][0] = audioData[i][0] * impulseData[i][0] - audioData[i][1] * impulseData[i][1];
+				result[i][1] = audioData[i][0] * impulseData[i][1] + audioData[i][1] * impulseData[i][0];
+			}
+
+			fft->processBackward(result, channelData, nfft);
 		}
 
 		else
