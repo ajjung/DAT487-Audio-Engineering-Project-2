@@ -338,7 +338,7 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
         }
     
     if(fileBuffer.getNumSamples() != 0.0){
-        for (int i = 0; i<dryBufferSize-bufsize; i++){
+        /*for (int i = 0; i<dryBufferSize-bufsize; i++){
             dryBuffer[i] = dryBuffer[i+bufsize];
         }
         for (int channel = 0; channel < totalNumInputChannels; ++channel){
@@ -346,7 +346,7 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
             for (int i = 0; i < bufsize; i++){
                 dryBuffer[i] = channelData[i];
             }
-        }
+        }*/
             
         for (int channel = 0; channel < totalNumInputChannels; ++channel){
             float* channelData = buffer.getWritePointer(channel);
@@ -382,14 +382,14 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
             }
         }
             
-        for (int i = 0; i < N ; ++i) {
+        /*for (int i = 0; i < N ; ++i) {
             buffer.clear (i, 0, bufsize) ;
-        }
+        }*/
             
         for (int channel = 0; channel < totalNumInputChannels; ++channel){
             float* channelData = buffer.getWritePointer(channel);
             for (int i = 0; i < nfft; i++){
-                channelData[i] = olaBuffer[channel][i];
+                channelData[i] += olaBuffer[channel][i];
             }
         }
         
