@@ -112,7 +112,8 @@ float PreDelay::process(float audioInput)
 	}
 
 	//send back our wet/dry delay mix
-	return ((m_fWetLevel * yn) + ((1.0 - m_fWetLevel) * input));
+    return (m_fWetLevel * yn) + ((1.0 - m_fWetLevel) * input);
+;
 }
 
 

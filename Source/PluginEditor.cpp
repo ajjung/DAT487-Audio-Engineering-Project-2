@@ -30,19 +30,19 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	knob1->setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
 	knob1->setTextValueSuffix(" %");
 	knob1->setSliderStyle(Slider::Rotary);
-	knob1->setColour(Slider::rotarySliderFillColourId, Colours::grey);
-	knob1->setColour(Slider::rotarySliderOutlineColourId, Colours::white);
+	knob1->setColour(Slider::rotarySliderFillColourId, Colours::black);
+	knob1->setColour(Slider::rotarySliderOutlineColourId, Colours::black);
 	knob1->addListener(this);
 	knob1->setValue(100.0, sendNotification);
 	knob1->setBounds(10, 90, 90, 90);
 
 	//knob 2 //this is the delay amount (m_fDelay_ms)
-	knob2->setRange(0.0, 999.0);
+	knob2->setRange(0.0, 500.0);
 	knob2->setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
 	knob2->setTextValueSuffix(" ms");
 	knob2->setSliderStyle(Slider::Rotary);
-	knob2->setColour(Slider::rotarySliderFillColourId, Colours::grey);
-	knob2->setColour(Slider::rotarySliderOutlineColourId, Colours::white);
+	knob2->setColour(Slider::rotarySliderFillColourId, Colours::black);
+	knob2->setColour(Slider::rotarySliderOutlineColourId, Colours::black);
 	knob2->addListener(this);
 	knob2->setBounds(100, 90, 90, 90);
 
@@ -51,8 +51,8 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	knob3->setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
 	knob3->setTextValueSuffix(" %");
 	knob3->setSliderStyle(Slider::Rotary);
-	knob3->setColour(Slider::rotarySliderFillColourId, Colours::grey);
-	knob3->setColour(Slider::rotarySliderOutlineColourId, Colours::white);
+	knob3->setColour(Slider::rotarySliderFillColourId, Colours::black);
+	knob3->setColour(Slider::rotarySliderOutlineColourId, Colours::black);
 	knob3->addListener(this);
 	knob3->setBounds(190, 90, 90, 90);
 
@@ -61,8 +61,8 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	knob4->setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
 	knob4->setTextValueSuffix(" ms");
 	knob4->setSliderStyle(Slider::Rotary);
-	knob4->setColour(Slider::rotarySliderFillColourId, Colours::grey);
-	knob4->setColour(Slider::rotarySliderOutlineColourId, Colours::white);
+	knob4->setColour(Slider::rotarySliderFillColourId, Colours::black);
+	knob4->setColour(Slider::rotarySliderOutlineColourId, Colours::black);
 	knob4->addListener(this);
 	knob4->setBounds(280, 90, 90, 90);
 
@@ -71,8 +71,8 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor(Con
 	knob5->setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
 	knob5->setTextValueSuffix(" %");
 	knob5->setSliderStyle(Slider::Rotary);
-	knob5->setColour(Slider::rotarySliderFillColourId, Colours::grey);
-	knob5->setColour(Slider::rotarySliderOutlineColourId, Colours::white);
+	knob5->setColour(Slider::rotarySliderFillColourId, Colours::black);
+	knob5->setColour(Slider::rotarySliderOutlineColourId, Colours::black);
 	knob5->addListener(this);
 	knob5->setBounds(370, 90, 90, 90);
 
@@ -98,8 +98,8 @@ ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
 //==============================================================================
 void ConvolutionReverbAudioProcessorEditor::paint(Graphics& g)
 {
-	g.fillAll(Colours::black);
-	g.setColour(Colours::white);
+	g.fillAll(Colours::orange);
+	g.setColour(Colours::black);
 	g.setFont(Font("Arial", 13, Font::bold + Font::italic));
 	//knob text
 	g.drawSingleLineText("Gain", 42, 80); //this is knob 1

@@ -13,8 +13,7 @@ It contains the basic framework code for a JUCE plugin processor.
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PreDelay.h"
-#include "FFTConvolver.h"
-
+#include "fftw3.h"
 
 //==============================================================================
 /**
@@ -67,6 +66,8 @@ public:
 	void getStateInformation(MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
     void buttonClicked();
+    void cmult(fftw_complex *c, fftw_complex *a, fftw_complex *b, int n);
+    float setWetLevel(float m_fWetLevel, float m_fgain, float input);
     
 	enum Parameters{
 		knob1Param,
@@ -77,6 +78,8 @@ public:
 		totalNumParams
 	};
     
+    AudioSampleBuffer fileBuffer;
+
 private:
 
 	// raw Vars
@@ -85,7 +88,6 @@ private:
 	float m_knob3;
 	float m_knob4;
 	float m_knob5;
-	float m_Combo;
 
 	float m_sampleRate;
 	//cooked variables
@@ -97,16 +99,20 @@ private:
 
     AudioFormatManager formatManager;
     int position;
-    AudioSampleBuffer fileBuffer;
-    
 	//for our interpolated delay time
 	PreDelay PDelayL;
 	PreDelay PDelayR;
-
-	FFTConvolver *fft;
-
-    int nfft;
-    fftw_complex *audioData, *impulseData, *result;
+    
+    fftw_complex    *data, *impulse, *result;
+    fftw_plan       pSig, pImp, pOut;
+    
+    int filterLength, nfft, convSize, nbFilters, dryBufferSize ;
+    float **olaBuffer ; // 2D overlap Add buffer
+    float *dryBuffer ; // 1D circular buffer for LF
+    float oldwet, wet;
+    
+    IIRCoefficients blah;
+    
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)
 };

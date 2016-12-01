@@ -17,11 +17,8 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor() : m_knob1(0),
 m_knob2(0),
 m_knob3(0),
 m_knob4(0),
-m_knob5(0),
-m_Combo(0)
+m_knob5(0)
 {
-    fft = NULL;
-    
 	m_fFeedback = 0;
 	m_fWetLevel = 0;
 	m_fGain = 0;
@@ -33,7 +30,7 @@ m_Combo(0)
 	m_fWetLevel = m_knob5;
 
 	PDelayL = PreDelay();
-	PDelayL.setMaxDelay(m_sampleRate, 0.99);
+	PDelayL.setMaxDelay(m_sampleRate, 0.5);
 	PDelayL.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayL.setWetMix(m_fWetLevel);
 	PDelayL.setGainLevel(m_fGain);
@@ -41,19 +38,18 @@ m_Combo(0)
 	PDelayL.setPlayheads();
 
 	PDelayR = PreDelay();
-	PDelayR.setMaxDelay(m_sampleRate, 0.99);
+	PDelayR.setMaxDelay(m_sampleRate, 0.5);
 	PDelayR.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayR.setWetMix(m_fWetLevel);
 	PDelayR.setGainLevel(m_fGain);
 	PDelayR.setFeedback(m_fFeedback);
 	PDelayR.setPlayheads();
-
-	formatManager.registerBasicFormats();
+    
+    formatManager.registerBasicFormats();
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
-	deleteAndZero(fft);
 }
 
 
@@ -112,11 +108,11 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 		m_fReverbTime = m_knob4; break;
 
 		//Mix Knob
-	case knob5Param: m_knob5 = newValue;
-		m_fWetLevel = m_knob5;
-
+	case knob5Param: m_knob5 = wet = newValue;
+        m_fWetLevel = m_knob5;
+            
 		PDelayL.setWetMix(m_fWetLevel);
-		PDelayR.setWetMix(m_fWetLevel);break;
+		PDelayR.setWetMix(m_fWetLevel); break;
 
 	default: break;
 	}
@@ -217,33 +213,22 @@ void ConvolutionReverbAudioProcessor::buttonClicked()
                          File::nonexistent,
                          "*.wav");
     
-    if (chooser.browseForFileToOpen())
-    {
+    if (chooser.browseForFileToOpen()){
         const File file (chooser.getResult());
         ScopedPointer<AudioFormatReader> reader (formatManager.createReaderFor (file));
         
-        if (reader != nullptr)
-        {
-            const double duration = reader->lengthInSamples / reader->sampleRate;
-            
-            if (duration < 3)
-            {
-                fileBuffer.setSize (reader->numChannels, reader->lengthInSamples);
-                reader->read (&fileBuffer,
-                              0,
-                              reader->lengthInSamples,
-                              0,
-                              true,
-                              true);
-                position = 0;
-            }
-            else
-            {
-                // handle the error that the file is 3 seconds or longer..
-            }
+        if (reader != nullptr){
+            fileBuffer.setSize (2, reader->lengthInSamples);
+            reader->read (&fileBuffer,
+                            0,
+                            reader->lengthInSamples,
+                            0,
+                            true,
+                            true);
         }
     }
 }
+
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
@@ -254,7 +239,7 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_fReverbTime = m_knob4;
 	m_fWetLevel = m_knob5;
 
-	PDelayL.setMaxDelay(m_sampleRate, 0.99);
+	PDelayL.setMaxDelay(m_sampleRate, 0.5);
 	PDelayL.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayL.setWetMix(m_fWetLevel);
 	PDelayL.setGainLevel(m_fGain);
@@ -262,7 +247,7 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayL.prepareToPlay();
 	PDelayL.setPlayheads();
 
-	PDelayR.setMaxDelay(m_sampleRate, 0.99);
+	PDelayR.setMaxDelay(m_sampleRate, 0.5);
 	PDelayR.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayR.setWetMix(m_fWetLevel);
 	PDelayR.setGainLevel(m_fGain);
@@ -270,90 +255,153 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayR.prepareToPlay();
 	PDelayR.setPlayheads();
     
-	formatManager.registerBasicFormats();
-
-    nfft = samplesPerBlock;
+    formatManager.registerBasicFormats();
     
-    if (fft == NULL)
-    {
-        fft = new FFTConvolver(nfft);
+    nbFilters = 2 ;
+    
+    nfft=samplesPerBlock *2;
+    
+    olaBuffer = new float*[nbFilters] ;
+    for (int k=0; k<nbFilters; k++) {
+        olaBuffer[k] = new float[nfft];
+        for (int i=0; i<nfft; i++) {
+            olaBuffer[k][i] = 0;
+        }
     }
     
-    audioData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
-    impulseData = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
-    result = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nfft) ;
-
+    dryBufferSize = samplesPerBlock;
+    dryBuffer = new float[dryBufferSize];
+    
+    for (int i=0 ; i<dryBufferSize ; i++) {
+        dryBuffer[i] = 0.0 ;
+    }
+    
+    // Complex buffers for FFT
+    impulse = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
+    data = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
+    result = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
+    
+    // Forward and Backward FFT
+    pImp = fftw_plan_dft_1d(nfft, impulse, impulse, FFTW_FORWARD, FFTW_ESTIMATE);
+    pSig = fftw_plan_dft_1d(nfft, data, data, FFTW_FORWARD, FFTW_ESTIMATE);
+    pOut = fftw_plan_dft_1d(nfft, result, result, FFTW_BACKWARD, FFTW_ESTIMATE);
+    
+    if(fileBuffer.getNumSamples() != 0.0){
+        for (int channel = 0; channel < fileBuffer.getNumChannels(); ++channel){
+            float* impulseData = fileBuffer.getWritePointer (channel);
+            for (int i = 0; i < nfft; i++){
+                if (i < fileBuffer.getNumSamples())
+                    impulse[i][channel] = impulseData[i];
+                else
+                    impulse[i][channel] = 0.0;
+            }
+        }
+        fftw_execute(pImp);
+    }
+    oldwet = wet ;
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
 {
 	// When playback stops, you can use this as an opportunity to free up any
 	// spare memory, etc.
-	fftw_free(audioData);
-	fftw_free(impulseData);
-	fftw_free(result);
+    delete [] dryBuffer ;
+    
+    for (int k = 0; k < nbFilters; k++)
+        delete [] olaBuffer[k];
+    delete [] olaBuffer;
+    
+    fftw_destroy_plan(pSig);
+    fftw_destroy_plan(pImp);
+    fftw_destroy_plan(pOut);
+    fftw_free(data);
+    fftw_free(impulse);
+    fftw_free(result);
 }
 
 void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-	// This is the place where you'd normally do the guts of your plugin's
-	// audio processing...
-	for (int channel = 0; channel < getNumInputChannels(); ++channel)
-	{
-		float* channelData = buffer.getWritePointer(channel);
-		float* ImpulseData = fileBuffer.getWritePointer(channel);
-        int bufsize = buffer.getNumSamples() ;
+    const int totalNumInputChannels  = getTotalNumInputChannels();
+    int N = getTotalNumOutputChannels();
+    int bufsize = buffer.getNumSamples();
+    
+    for (int channel = 0; channel < totalNumInputChannels; ++channel){
+        float* channelData = buffer.getWritePointer(channel);
+        
+        for(int n=0;n<buffer.getNumSamples(); ++n){
+            if(channel == 0)
+                channelData[n] = PDelayL.process(channelData[n]);
+                
+            else if(channel == 1)
+                channelData[n] = PDelayR.process(channelData[n]);
+            }
+        }
+    
+    if(fileBuffer.getNumSamples() != 0.0){
+        for (int i = 0; i<dryBufferSize-bufsize; i++){
+            dryBuffer[i] = dryBuffer[i+bufsize];
+        }
+        for (int channel = 0; channel < totalNumInputChannels; ++channel){
+            float* channelData = buffer.getWritePointer(channel);
+            for (int i = 0; i < bufsize; i++){
+                dryBuffer[i] = channelData[i];
+            }
+        }
+            
+        for (int channel = 0; channel < totalNumInputChannels; ++channel){
+            float* channelData = buffer.getWritePointer(channel);
+            for (int i = 0; i < nfft; i++){
+                if (i < bufsize)
+                    data[i][channel] = channelData[i];
+                else
+                    data[i][channel] = 0.0;
+            }
+        }
+            
+        fftw_execute(pSig);
 
-		if (fileBuffer.getNumSamples() != 0)
-		{
-			fft->processForward(channelData, audioData, nfft, bufsize);
-			fft->processForward(ImpulseData, impulseData, nfft, bufsize);
-
-			for (int i = 0; i < buffer.getNumSamples(); i++)
-			{
-				if (channel == 0)
-				{
-					audioData[i][0] = PDelayL.process(audioData[i][0]);
-				}
-				else if (channel == 1)
-				{
-					audioData[i][1] = PDelayR.process(audioData[i][1]);
-				}
-			}
-
-			for (int i = 0; i < nfft; i++)
-			{
-				result[i][0] = audioData[i][0] * impulseData[i][0] - audioData[i][1] * impulseData[i][1];
-				result[i][1] = audioData[i][0] * impulseData[i][1] + audioData[i][1] * impulseData[i][0];
-			}
-
-			fft->processBackward(result, channelData, nfft);
-		}
-
-		else
-		{
-			for (int i = 0; i < buffer.getNumSamples(); i++)
-			{
-				if (channel == 0)
-				{
-					channelData[i] = PDelayL.process(channelData[i]);
-				}
-				else if (channel == 1)
-				{
-					channelData[i] = PDelayR.process(channelData[i]);
-				}
-			}
-		}
-	}
-
-	// In case we have more outputs than inputs, this code clears any output
-	// channels that didn't contain input data, (because these aren't
-	// guaranteed to be empty - they may contain garbage).
-	// I've added this to avoid people getting screaming feedback
-	// when they first compile the plugin, but obviously you don't need to
-	// this code if your algorithm already fills all the output channels.
-	for (int i = getNumInputChannels(); i < getNumOutputChannels(); ++i)
-		buffer.clear(i, 0, buffer.getNumSamples());
+        for (int i = 0; i < nfft; i++){
+            result[i][0] = data[i][0] * impulse[i][0] - data[i][1] * impulse[i][1];
+            result[i][1] = data[i][0] * impulse[i][1] + data[i][1] * impulse[i][0];
+        }
+            
+        fftw_execute(pOut);
+            
+        for (int k=0; k<nbFilters; k++) {
+            for (int i = 0; i<nfft-bufsize; i++){
+                olaBuffer[k][i] = olaBuffer[k][i+bufsize];
+            }
+            for (int i = (nfft-bufsize); i<nfft; i++){
+                olaBuffer[k][i] = 0.0;
+            }
+        }
+            
+        for (int channel = 0; channel < totalNumInputChannels; ++channel){
+            for (int i = 0; i<nfft; i++) {
+                olaBuffer[channel][i] = result[i][channel];
+            }
+        }
+            
+        for (int i = 0; i < N ; ++i) {
+            buffer.clear (i, 0, bufsize) ;
+        }
+            
+        for (int channel = 0; channel < totalNumInputChannels; ++channel){
+            float* channelData = buffer.getWritePointer(channel);
+            for (int i = 0; i < nfft; i++){
+                channelData[i] = olaBuffer[channel][i];
+            }
+        }
+        
+        /*
+        buffer.addFromWithRamp(0, 0, olaBuffer[0], bufsize, oldwet, wet); // wet signal
+        buffer.addFromWithRamp(0, 0, dryBuffer, bufsize, (1.0-oldwet), (1.0-wet)); // dry signal
+        
+        buffer.addFromWithRamp(1, 0, olaBuffer[1], bufsize, oldwet, wet); // wet signal
+        buffer.addFromWithRamp(1, 0, dryBuffer, bufsize, (1.0-oldwet), (1.0-wet)); // dry signal
+        */
+        oldwet = wet;
+    }
 }
 
 //==============================================================================
