@@ -19,6 +19,8 @@ m_knob3(0),
 m_knob4(0),
 m_knob5(0)
 {
+    fft = NULL;
+    
 	m_fFeedback = 0;
 	m_fWetLevel = 0;
 	m_fGain = 0;
@@ -30,7 +32,7 @@ m_knob5(0)
 	m_fWetLevel = m_knob5;
 
 	PDelayL = PreDelay();
-	PDelayL.setMaxDelay(m_sampleRate, 0.5);
+	PDelayL.setMaxDelay(m_sampleRate, 0.500);
 	PDelayL.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayL.setWetMix(m_fWetLevel);
 	PDelayL.setGainLevel(m_fGain);
@@ -38,7 +40,7 @@ m_knob5(0)
 	PDelayL.setPlayheads();
 
 	PDelayR = PreDelay();
-	PDelayR.setMaxDelay(m_sampleRate, 0.5);
+	PDelayR.setMaxDelay(m_sampleRate, 0.500);
 	PDelayR.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayR.setWetMix(m_fWetLevel);
 	PDelayR.setGainLevel(m_fGain);
@@ -108,7 +110,7 @@ void ConvolutionReverbAudioProcessor::setParameter(int index, float newValue)
 		m_fReverbTime = m_knob4; break;
 
 		//Mix Knob
-	case knob5Param: m_knob5 = wet = newValue;
+	case knob5Param: m_knob5 = newValue;
         m_fWetLevel = m_knob5;
             
 		PDelayL.setWetMix(m_fWetLevel);
@@ -217,14 +219,15 @@ void ConvolutionReverbAudioProcessor::buttonClicked()
         const File file (chooser.getResult());
         ScopedPointer<AudioFormatReader> reader (formatManager.createReaderFor (file));
         
-        if (reader != nullptr){
-            fileBuffer.setSize (2, reader->lengthInSamples);
-            reader->read (&fileBuffer,
-                            0,
-                            reader->lengthInSamples,
-                            0,
-                            true,
-                            true);
+        if (reader != nullptr)
+        {
+            fileBuffer.setSize (2, reader->lengthInSamples);      // [4]
+            reader->read (&fileBuffer,                                              // [5]
+                        0,                                                        //  [5.1]
+                        reader->lengthInSamples,                                  //  [5.2]
+                        0,                                                        //  [5.3]
+                        true,                                                     //  [5.4]
+                        true);                                                    //  [5.5]
         }
     }
 }
@@ -239,7 +242,7 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_fReverbTime = m_knob4;
 	m_fWetLevel = m_knob5;
 
-	PDelayL.setMaxDelay(m_sampleRate, 0.5);
+	PDelayL.setMaxDelay(m_sampleRate, 0.500);
 	PDelayL.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayL.setWetMix(m_fWetLevel);
 	PDelayL.setGainLevel(m_fGain);
@@ -247,7 +250,7 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	PDelayL.prepareToPlay();
 	PDelayL.setPlayheads();
 
-	PDelayR.setMaxDelay(m_sampleRate, 0.5);
+	PDelayR.setMaxDelay(m_sampleRate, 0.500);
 	PDelayR.setDelayTime(m_sampleRate, m_fDelayTime);
 	PDelayR.setWetMix(m_fWetLevel);
 	PDelayR.setGainLevel(m_fGain);
@@ -257,47 +260,34 @@ void ConvolutionReverbAudioProcessor::prepareToPlay(double sampleRate, int sampl
     
     formatManager.registerBasicFormats();
     
-    nbFilters = 2 ;
+    nfft=samplesPerBlock * 2;
     
-    nfft=samplesPerBlock *2;
+    if(fft == NULL)
+        new FFTConvolver(nfft);
     
-    olaBuffer = new float*[nbFilters] ;
-    for (int k=0; k<nbFilters; k++) {
+    olaBuffer = new float*[2] ;
+    for (int k=0; k<2; k++) {
         olaBuffer[k] = new float[nfft];
         for (int i=0; i<nfft; i++) {
             olaBuffer[k][i] = 0;
         }
     }
     
-    dryBufferSize = samplesPerBlock;
-    dryBuffer = new float[dryBufferSize];
-    
-    for (int i=0 ; i<dryBufferSize ; i++) {
+    dryBuffer = new float[nfft];
+    for (int i=0 ; i<nfft ; i++) {
         dryBuffer[i] = 0.0 ;
     }
-    
+        
     // Complex buffers for FFT
     impulse = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
     data = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
     result = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * nfft);
     
-    // Forward and Backward FFT
+    //Forward and Backward FFT
     pImp = fftw_plan_dft_1d(nfft, impulse, impulse, FFTW_FORWARD, FFTW_ESTIMATE);
     pSig = fftw_plan_dft_1d(nfft, data, data, FFTW_FORWARD, FFTW_ESTIMATE);
     pOut = fftw_plan_dft_1d(nfft, result, result, FFTW_BACKWARD, FFTW_ESTIMATE);
     
-    if(fileBuffer.getNumSamples() != 0.0){
-        for (int channel = 0; channel < fileBuffer.getNumChannels(); ++channel){
-            float* impulseData = fileBuffer.getWritePointer (channel);
-            for (int i = 0; i < nfft; i++){
-                if (i < fileBuffer.getNumSamples())
-                    impulse[i][channel] = impulseData[i];
-                else
-                    impulse[i][channel] = 0.0;
-            }
-        }
-        fftw_execute(pImp);
-    }
     oldwet = wet ;
 }
 
@@ -306,8 +296,7 @@ void ConvolutionReverbAudioProcessor::releaseResources()
 	// When playback stops, you can use this as an opportunity to free up any
 	// spare memory, etc.
     delete [] dryBuffer ;
-    
-    for (int k = 0; k < nbFilters; k++)
+    for (int k = 0; k < 2; k++)
         delete [] olaBuffer[k];
     delete [] olaBuffer;
     
@@ -327,80 +316,90 @@ void ConvolutionReverbAudioProcessor::processBlock(AudioSampleBuffer& buffer, Mi
     
     for (int channel = 0; channel < totalNumInputChannels; ++channel){
         float* channelData = buffer.getWritePointer(channel);
-        
+		float* impulseData = fileBuffer.getWritePointer(channel);
+
         for(int n=0;n<buffer.getNumSamples(); ++n){
             if(channel == 0)
                 channelData[n] = PDelayL.process(channelData[n]);
                 
             else if(channel == 1)
                 channelData[n] = PDelayR.process(channelData[n]);
-            }
         }
     
-    if(fileBuffer.getNumSamples() != 0.0){
-        /*for (int i = 0; i<dryBufferSize-bufsize; i++){
-            dryBuffer[i] = dryBuffer[i+bufsize];
-        }
-        for (int channel = 0; channel < totalNumInputChannels; ++channel){
-            float* channelData = buffer.getWritePointer(channel);
-            for (int i = 0; i < bufsize; i++){
-                dryBuffer[i] = channelData[i];
+        if(fileBuffer.getNumSamples() != 0.0)
+        {
+            /*olaBuffer = new float*[2] ;
+            for (int k=0; k<2; k++) {
+                olaBuffer[k] = new float[nfft];
+                for (int i=0; i<nfft; i++) {
+                    olaBuffer[k][i] = 0;
+                }
             }
-        }*/
             
-        for (int channel = 0; channel < totalNumInputChannels; ++channel){
-            float* channelData = buffer.getWritePointer(channel);
+            dryBuffer = new float[dryBufferSize];
+            for (int i=0 ; i<dryBufferSize ; i++) {
+                dryBuffer[i] = 0.0 ;
+
+			for (int i = 0; i < bufsize; i++)
+				dryBuffer[i] = channelData[i];
+            }
+            */
+            for (int i = 0; i<nfft-bufsize; i++)
+                dryBuffer[i] = dryBuffer[i+bufsize];
+        
+            for (int i = (nfft-bufsize); i < nfft; i++)
+                dryBuffer[i] = channelData[i-nfft+bufsize];
+            
+			for (int k = 0; k<2; k++){
+				for (int i = 0; i<nfft - bufsize; i++)
+					olaBuffer[k][i] = olaBuffer[k][i + bufsize];
+
+				for (int i = (nfft - bufsize); i<nfft; i++)
+					olaBuffer[k][i] = 0.0;
+			}
+
             for (int i = 0; i < nfft; i++){
                 if (i < bufsize)
-                    data[i][channel] = channelData[i];
+                    data[i][0] = channelData[i];
                 else
-                    data[i][channel] = 0.0;
+                    data[i][0] = 0.0;
             }
-        }
             
-        fftw_execute(pSig);
+			for (int i = 0; i < nfft; i++){
+				if (i < fileBuffer.getNumSamples())
+					impulse[i][0] = impulseData[i];
+				else
+					impulse[i][0] = 0.0;
+			}
 
-        for (int i = 0; i < nfft; i++){
-            result[i][0] = data[i][0] * impulse[i][0] - data[i][1] * impulse[i][1];
-            result[i][1] = data[i][0] * impulse[i][1] + data[i][1] * impulse[i][0];
-        }
+			fftw_execute(pImp);
+
+            fftw_execute(pSig);
             
-        fftw_execute(pOut);
-            
-        for (int k=0; k<nbFilters; k++) {
-            for (int i = 0; i<nfft-bufsize; i++){
-                olaBuffer[k][i] = olaBuffer[k][i+bufsize];
+            result[0][0] = data[0][0] * impulse[0][0];
+            result[0][1] = data[0][1] * impulse[0][1];
+            for(int i = 1; i < nfft; i++) {
+                result[i][0] = data[i][0] * impulse[i][0] - data[i][1] * impulse[i][1];
+                result[i][1] = data[i][0] * impulse[i][1] + data[i][1] * impulse[i][0];
             }
-            for (int i = (nfft-bufsize); i<nfft; i++){
-                olaBuffer[k][i] = 0.0;
-            }
-        }
             
-        for (int channel = 0; channel < totalNumInputChannels; ++channel){
-            for (int i = 0; i<nfft; i++) {
-                olaBuffer[channel][i] = result[i][channel];
-            }
-        }
+            fftw_execute(pOut);
             
-        /*for (int i = 0; i < N ; ++i) {
-            buffer.clear (i, 0, bufsize) ;
-        }*/
+            for (int i = 0; i < nfft; i++)
+                olaBuffer[channel][i] += result[i][0];
             
-        for (int channel = 0; channel < totalNumInputChannels; ++channel){
-            float* channelData = buffer.getWritePointer(channel);
-            for (int i = 0; i < nfft; i++){
-                channelData[i] += olaBuffer[channel][i];
-            }
+            
+            buffer.clear(0, 0, bufsize);
+            buffer.clear(1, 0, bufsize);
+            
+            buffer.addFromWithRamp(0, 0, olaBuffer[0], bufsize, 0, 0); // wet signal
+            buffer.addFromWithRamp(0, 0, dryBuffer, bufsize, 1, 1); // dry signal
+             
+            buffer.addFromWithRamp(1, 0, olaBuffer[1], bufsize, 0, 0); // wet signal
+            buffer.addFromWithRamp(1, 0, dryBuffer, bufsize, 1, 1); // dry signal
+            
+            oldwet = wet;
         }
-        
-        /*
-        buffer.addFromWithRamp(0, 0, olaBuffer[0], bufsize, oldwet, wet); // wet signal
-        buffer.addFromWithRamp(0, 0, dryBuffer, bufsize, (1.0-oldwet), (1.0-wet)); // dry signal
-        
-        buffer.addFromWithRamp(1, 0, olaBuffer[1], bufsize, oldwet, wet); // wet signal
-        buffer.addFromWithRamp(1, 0, dryBuffer, bufsize, (1.0-oldwet), (1.0-wet)); // dry signal
-        */
-        oldwet = wet;
     }
 }
 

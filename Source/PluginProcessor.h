@@ -14,7 +14,7 @@ It contains the basic framework code for a JUCE plugin processor.
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PreDelay.h"
 #include "fftw3.h"
-
+#include "FFTConvolver.h"
 //==============================================================================
 /**
 */
@@ -106,12 +106,12 @@ private:
     fftw_complex    *data, *impulse, *result;
     fftw_plan       pSig, pImp, pOut;
     
-    int filterLength, nfft, convSize, nbFilters, dryBufferSize ;
+    int nfft ;
     float **olaBuffer ; // 2D overlap Add buffer
+    float *filterSamples;
     float *dryBuffer ; // 1D circular buffer for LF
     float oldwet, wet;
-    
-    IIRCoefficients blah;
+    FFTConvolver *fft;
     
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConvolutionReverbAudioProcessor)

@@ -69,11 +69,11 @@
                rtasFolder="" aaxFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Convolution Reverb"
-                       libraryPath="/Users/ajung/Downloads/DAT487 Project 2/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
-                       headerPath="/Users/ajung/Downloads/DAT487 Project 2/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
+                       libraryPath="/Users/ajung/Downloads/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
+                       headerPath="/Users/ajung/Downloads/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Convolution Reverb"
-                       headerPath="/Users/ajung/Downloads/DAT487 Project 2/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
-                       libraryPath="/Users/ajung/Downloads/DAT487 Project 2/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
+                       headerPath="/Users/ajung/Downloads/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"
+                       libraryPath="/Users/ajung/Downloads/DAT487-Audio-Engineering-Project-2-master/Libraries/FFTW3"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="../JUCE/modules"/>
